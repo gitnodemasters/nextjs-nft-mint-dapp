@@ -47,6 +47,8 @@ const projectConfig = {
       : 'https://testnet.bscscan.com/address/0xc46729e37156492bd9d2e3d1c2d0c3620e0573b0',
   // 'https://etherscan.io/address/your_ethereum_contract_address'
   // 'https://rinkeby.etherscan.io/address/your_rinkeby_contract_address'
+
+  adminWallet: "0x30811AB798c98d64bAaFDCa0767dEd9A1670B0F9",
 };
 
 export default projectConfig;

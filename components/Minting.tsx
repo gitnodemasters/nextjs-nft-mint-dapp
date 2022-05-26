@@ -17,14 +17,19 @@ export default function Minting() {
   const [connErrMsg, setConnErrMsg] = useState('');
   const [totalSupply, setTotalSupply] = useState('?');
   const [isPending, setIsPending] = useState(false);
+  const [isPending1, setIsPending1] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
   const [mintAmount, setMintAmount] = useState(1);
   const [mintCost, setMintCost] = useState(0.08);
   const [mintType, setMintType] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   async function mintNFTs() {
     console.log("mintType", mintType)
     console.log("mintCost", mintCost)
+    console.log("account", account)
+    console.log("isAdmin", isAdmin)
     if (account && ethereumProvider) {
       const totalMintCost = (mintCost * mintAmount).toString();
       const totalWei = ethers.utils.parseEther(totalMintCost).toBigInt();
@@ -58,6 +63,37 @@ export default function Minting() {
         );
       } catch (error) {
         setIsPending(false);
+      }
+    }
+  }
+
+  async function claim() {
+    if (account && ethereumProvider) {
+      setIsPending1(true);
+      try {
+        console.log("claim")
+        const web3Provider = new ethers.providers.Web3Provider(
+          ethereumProvider
+        );
+        const signer = web3Provider.getSigner();
+        const contract = new ethers.Contract(
+          projectConfig.contractAddress,
+          ABI,
+          signer
+        );
+        const transaction = await contract.claimTokenomic();
+        setIsPending1(false);
+        setIsClaiming(true);
+        await transaction.wait();
+        setIsClaiming(false);
+        setMessage(
+          `Ya! successfully claim to ${account.substring(
+            0,
+            6
+          )}...${account.substring(account.length - 4)}`
+        );
+      } catch (error) {
+        setIsPending1(false);
       }
     }
   }
@@ -105,9 +141,18 @@ export default function Minting() {
 
   useEffect(() => {
     fetchTotalSupply();
+    if (account == projectConfig.adminWallet)
+      setIsAdmin(true);
     // cleanup
     return () => setTotalSupply('?');
   }, []);
+
+  useEffect(() => {
+    if (account == projectConfig.adminWallet)
+      setIsAdmin(true);
+    else
+      setIsAdmin(false);
+  }, [account]);
 
   return (
     <>
@@ -215,7 +260,60 @@ export default function Minting() {
             </button>
           )}
         </div>
-
+        <div className="flex justify-center">
+          {active && !connErrMsg && isAdmin ? (
+            <>
+              {isPending1 || isClaiming ? (
+                <button
+                  type="button"
+                  className="flex justify-center items-center rounded px-4 py-2 bg-red-700 font-bold w-40 cursor-not-allowed"
+                  disabled
+                >
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  {isPending1 && 'Pending'}
+                  {isClaiming && 'Claiming'}
+                  {!isPending1 && !isClaiming && 'Processing'}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className={`rounded px-4 py-2 bg-blue-700 hover:bg-blue-600 font-bold w-40`}
+                  onClick={claim}
+                >
+                  Claim
+                </button>
+              )}
+            </>
+          ) : (
+            <button
+              type="button"
+              className={`rounded px-4 py-2 bg-gray-700 font-bold w-40 cursor-not-allowed`}
+              disabled={true}
+              onClick={claim}
+            >
+              Claim
+            </button>
+          )}
+        </div>
         {message && <div className="text-green-500 text-center">{message}</div>}
         {connErrMsg && (
           <div className="text-red-500 text-center">{connErrMsg}</div>
