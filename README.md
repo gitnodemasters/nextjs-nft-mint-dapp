@@ -2,7 +2,7 @@
 
 A simple, fast and modern dApp for minting NFTs.
 
-This dApp is actually used by [Skulls In Love](https://www.skullsin.love/).
+This dApp is actually used by NFTMembership.
 
 ## Required
 
@@ -33,7 +33,7 @@ npm install
 
 Replace the values in the `config/projectConfig.ts` file with yours as needed.
 
-> This dApp is by default using **Mumbai Testnet** for development and **Polygon Mainnet** for production.
+> This dApp is by default using **BSC Testnet** for development and **BSC Mainnet** for production.
 
 > If you want to use other networks (eg **Ethereum Mainnet** and **Rinkeby Testnet**), edit the `config/rpcConfig.ts` file as well. Then follow the steps below to set your [Infura](https://infura.io/) key.
 > 
